@@ -1,13 +1,13 @@
 from setuptools import setup, find_packages
 
 setup(
-    name = 'todo-api',
+    name = 'todoapi',
     version = '0.1',
     packages = find_packages(),
     install_requires = [
         'SQLAlchemy==0.9.1',
         'Flask==0.10',
-        'Flask-SQLAlchemy==1.0'
+        'Flask-SQLAlchemy==1.0  '
         ],
     setup_requires=[
         ],
