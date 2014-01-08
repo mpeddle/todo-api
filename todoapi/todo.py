@@ -2,7 +2,7 @@ from flask import Flask, request, session, g, redirect, url_for, abort, \
      render_template, flash, jsonify
 from flask.views import MethodView
 
-from todo.database import db_session
+from todoapi.database import db_session
 
 ## SETTINGS
 app = Flask(__name__)
