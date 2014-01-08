@@ -7,7 +7,6 @@ from todo.database import db_session
 ## SETTINGS
 app = Flask(__name__)
 app.config.update({
-    DATABASE='/tmp/todo.db',
     DEBUG=True,
     SECRET_KEY='ad75feSDau',
     USERNAME='admin',
@@ -21,14 +20,12 @@ def shutdown_session(exception=None):
 
 ## API
 @app.route('/todo/api/v1.0/todos', methods = ['GET'])
-@auth.login_required
 def get_todos():
     cur = g.db.execute('select id, title, text from todos order by id desc')
     todos = cur.fetchall()
     return jsonify({'todos' : todos})
  
 @app.route('/todo/api/v1.0/todos/<int:todo_id>', methods = ['GET'])
-@auth.login_required
 def get_todo(todo_id):
     cur = g.db.execute('select id, title, text from todos where id ={}'.format(todo_id))
     todos = cur.fetchall()
@@ -37,7 +34,6 @@ def get_todo(todo_id):
     return jsonify({'todos' : todos}) 
  
 @app.route('/todo/api/v1.0/todos', methods = ['POST'])
-@auth.login_required
 def create_todo():
     if not request.json or not 'title' in request.json:
         abort(400)
@@ -51,7 +47,6 @@ def create_todo():
     return jsonify( { 'todo': make_public_todo(todo) } ), 201
  
 @app.route('/todo/api/v1.0/todos/<int:todo_id>', methods = ['PUT'])
-@auth.login_required
 def update_todo(todo_id):
 
     if not request.json:
@@ -75,7 +70,6 @@ def update_todo(todo_id):
     return jsonify( { 'todo': make_public_todo(todo[0]) } )
     
 @app.route('/todo/api/v1.0/todos/<int:todo_id>', methods = ['DELETE'])
-@auth.login_required
 def delete_todo(todo_id):
     todo = filter(lambda t: t['id'] == todo_id, todos)
     if len(todo) == 0:
