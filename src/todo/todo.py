@@ -1,18 +1,10 @@
 from flask import Flask, request, session, g, redirect, url_for, abort, \
-     render_template, flash
-from sqlite3 import dbapi2 as sqlite3
+     render_template, flash, jsonify
 
 from todo.database import db_session
 
 ## SETTINGS
 app = Flask(__name__)
-app.config.update({
-    DEBUG=True,
-    SECRET_KEY='ad75feSDau',
-    USERNAME='admin',
-    PASSWORD='default'
-})
-app.config.from_envvar('TODO_SETTINGS', silent=True)
 
 @app.teardown_appcontext
 def shutdown_session(exception=None):
