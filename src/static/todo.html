@@ -1,0 +1,59 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Todo app</title>
+</head>
+<body>
+  <script src="js/jquery.js"></script>
+  <script src="js/underscore.js"></script>
+  <script src="js/backbone.js"></script>
+
+<script>
+var Todo = Backbone.Model.extend({
+  // Default todo attribute values
+  defaults: {
+    title: '',
+    completed: false
+  }
+});
+
+// Setting the value of attributes via instantiation
+var myTodo = new Todo({
+  title: "Set through instantiation."
+});
+console.log('Todo title: ' + myTodo.get('title')); // Todo title: Set through instantiation.
+console.log('Completed: ' + myTodo.get('completed')); // Completed: false
+
+// Set single attribute value at a time through Model.set():
+myTodo.set("title", "Title attribute set through Model.set().");
+console.log('Todo title: ' + myTodo.get('title')); // Todo title: Title attribute set through Model.set().
+console.log('Completed: ' + myTodo.get('completed')); // Completed: false
+
+// Set map of attributes through Model.set():
+myTodo.set({
+  title: "Both attributes set through Model.set().",
+  completed: true
+});
+console.log('Todo title: ' + myTodo.get('title')); // Todo title: Both attributes set through Model.set().
+console.log('Completed: ' + myTodo.get('completed')); // Completed: true
+
+
+//PERSON CODE HERE
+var Person = new Backbone.Model();
+Person.on("change:name", function() { console.log('Name changed'); });
+Person.set({name: 'Andrew'});
+// log entry: Name changed
+
+Person.set({name: 'Jeremy'}, {silent: true});
+// no log entry
+
+console.log(Person.hasChanged("name"));
+// true: change was recorded
+console.log(Person.hasChanged(null));
+// true: something (anything) has changed
+
+</script>
+
+</body>
+</html>
