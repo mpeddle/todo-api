@@ -1,0 +1,26 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Todo app</title>
+</head>
+
+<body>
+
+<div id='container'>
+<div id='entry-widget'>
+
+</div>
+
+<div id='todo-list'>
+
+	{% for todo in todos %}
+		{{todo}}
+	{% endfor %}
+
+</div>
+
+</div>
+
+</body>
+</html>
