@@ -1,84 +1,77 @@
-from flask import Flask, request, session, g, redirect, url_for, abort, \
-     render_template, flash, jsonify
+from flask import Flask, request, session, redirect, abort, \
+     render_template, jsonify
 from flask.views import MethodView
 
 from todoapi.database import db_session
+from todoapi.models import Todo
+
+from jinja2 import Environment, PackageLoader
 
 ## SETTINGS
 app = Flask(__name__)
+
+jinja_env = Environment(loader=PackageLoader('todoapi', 'templates'))
 
 @app.teardown_appcontext
 def shutdown_session(exception=None):
     db_session.remove()
 
 ## API
-@app.route('/todo/api/v1.0/todos', methods = ['GET'])
-def get_todos():
-    cur = g.db.execute('select id, title, text from todos order by id desc')
-    todos = cur.fetchall()
-    return jsonify({'todos' : todos})
+
+class TodoApi(MethodView):
+
+    def get(self, todo_id):
+        todo = Todo.query.filter(Todo.id==todo_id).all()
+        return jsonify({'todos' : [t.api_dict() for t in todo]}) 
+
+    def post(self):
+        if not request.json or not 'title' in request.form:
+            abort(400)
+        else:
+            title, text = request.form.title, request.form.get('text','')
+        todo = Todo(title=title,text=text)
+        db_session.add(todo)
+        db_session.commit()
+        return 'OK'
+
+    def delete(self,todo_id):
+        todo = Todo.query.filter(Todo.id==todo_id)
+        if not todo:
+            return jsonify({'error':'Todo not found'})
+        todo.delete()
+        db_session.commit()
+        return jsonify({'result': True})
+
+    def put(self, todo_id):
+        if 'title' in request.form and type(request.form['title']) is not unicode:
+            abort(400)
+        if 'text' in request.form and type(request.form['text']) is not unicode:
+            abort(400)
+        title = request.form.title
+        text = request.form.get('text','')
+        todo = Todo.query.filter(Todo.id==todo_id)
+        if todo:
+            todo.update(title=title,text=text)
+            return jsonify({'result': True})
+        else:
+            return jsonify({'error':'Todo not found'})
  
-@app.route('/todo/api/v1.0/todos/<int:todo_id>', methods = ['GET'])
-def get_todo(todo_id):
-    cur = g.db.execute('select id, title, text from todos where id ={}'.format(todo_id))
-    todos = cur.fetchall()
-    if len(todos) ==0:
-        abort(404)
-    return jsonify({'todos' : todos}) 
- 
-@app.route('/todo/api/v1.0/todos', methods = ['POST'])
-def create_todo():
-    if not request.json or not 'title' in request.json:
-        abort(400)
-    todo = {
-        'id': todos[-1]['id'] + 1,
-        'title': request.json['title'],
-        'description': request.json.get('description', ""),
-        'done': False
-    }
-    ## DB INSERT TODO HERE
-    return jsonify( { 'todo': make_public_todo(todo) } ), 201
- 
-@app.route('/todo/api/v1.0/todos/<int:todo_id>', methods = ['PUT'])
-def update_todo(todo_id):
+class Todos(MethodView):
+    def get(self):
+        todos = Todo.query.all()
+        print todos
+        return jsonify({'todos': [t.api_dict() for t in todos]})
 
-    if not request.json:
-        abort(400)
-    if 'title' in request.json and type(request.json['title']) != unicode:
-        abort(400)
-    if 'description' in request.json and type(request.json['description']) is not unicode:
-        abort(400)
-    if 'done' in request.json and type(request.json['done']) is not bool:
-        abort(400)
+## VIEWS
 
-    todo = filter(lambda t: t['id'] == todo_id, todos)
-    if len(todo) == 0:
-        abort(404)
+@app.route("/")
+def index():
+    template = env.get_template('todo.html')
+    return template.render(**todos)
 
-    ## UPDATE TODO IN DB HERE
-
-    todo[0]['title'] = request.json.get('title', todo[0]['title'])
-    todo[0]['description'] = request.json.get('description', todo[0]['description'])
-    todo[0]['done'] = request.json.get('done', todo[0]['done'])
-    return jsonify( { 'todo': make_public_todo(todo[0]) } )
-    
-@app.route('/todo/api/v1.0/todos/<int:todo_id>', methods = ['DELETE'])
-def delete_todo(todo_id):
-    todo = filter(lambda t: t['id'] == todo_id, todos)
-    if len(todo) == 0:
-        abort(404)
-    g.db.execute('delete from todos where id={}'.format(todo_id))
-    return jsonify( { 'result': True } )
-
-@app.route("/todos")
-def show_todos():
-    todos = Todo.get()
-    return render_template('todos.html', todos=todos)
-
-##VIEWS
-def abort_if_todo_doesnt_exist(todo_id):
-    if todo_id not in TODOS:
-        abort(404, message="Todo {} doesn't exist".format(todo_id))
+app.add_url_rule('/todos', view_func=Todos.as_view('todos_view'), methods=['GET',])
+app.add_url_rule('/todo', view_func=TodoApi.as_view('todo_view_put'), methods=['POST'])
+app.add_url_rule('/todo/<int:todo_id>', view_func=TodoApi.as_view('todo_view'), methods=['GET','PUT','DELETE']) 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)

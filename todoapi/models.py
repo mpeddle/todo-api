@@ -17,12 +17,12 @@ class User(Base):
 class Todo(Base):
     __tablename__ = 'todos'
     id = Column(Integer, primary_key=True)
-    title = Column(String(100), unique=True)
-    text = Column(String(500), unique=True)
+    title = Column(String(100), unique=False)
+    text = Column(String(500), unique=False)
 
     def __init__(self, title=None, text=None):
         self.title = title
         self.text = text
 
-    def __repr__(self):
-        return '<Todo %r>' % (self.title)
+    def api_dict(self):
+        return {'id': self.id, 'title':self.title, 'text':self.text}

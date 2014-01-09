@@ -1,0 +1,16 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Todo app</title>
+</head>
+
+<body>
+{% load comments %}
+{% get_latest_comments 10 as latest_comments %}
+{% for todo in todos %}
+    ...
+{% endfor %}
+
+</body>
+</html>
