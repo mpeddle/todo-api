@@ -31,7 +31,7 @@ class TodoApi(MethodView):
         todo = Todo(title=title,text=text)
         db_session.add(todo)
         db_session.commit()
-        return 'OK'
+        return jsonify({'result': True})
 
     def delete(self,todo_id):
         todo = Todo.query.filter(Todo.id==todo_id)
