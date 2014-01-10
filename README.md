@@ -8,7 +8,7 @@ API Features
 
 API endpoints:
 
-* /todo/<digit> --> GET/UPDATE/DELETE a todo
+* /todo/[id] --> GET/UPDATE/DELETE a todo
 * /todo --> POST a todo
 * /todos --> GET all todos
 
