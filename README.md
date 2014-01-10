@@ -22,5 +22,6 @@ Setup
 Todo
 ----
 
-* Users + HTTP Authentication
 * Simple frontend
+* Users + HTTP Authentication
+* Unit tests
